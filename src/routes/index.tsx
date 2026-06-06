@@ -38,7 +38,7 @@ function Landing() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Leaf className="h-5 w-5" />
             </div>
-            <span className="font-display text-lg font-semibold">GreenGo</span>
+            <span className="font-display text-lg font-semibold">MoveGreen</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost"><Link to="/auth">Sign in</Link></Button>
@@ -131,7 +131,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Built for a greener commute · GreenGo
+        Built for a greener commute · MoveGreen
       </footer>
     </div>
   );

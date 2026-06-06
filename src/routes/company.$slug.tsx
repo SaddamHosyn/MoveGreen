@@ -57,7 +57,7 @@ function CompanyPublic() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Leaf className="h-4 w-4" />
             </div>
-            <span className="font-display font-semibold">GreenGo</span>
+            <span className="font-display font-semibold">MoveGreen</span>
           </Link>
           <Button asChild variant="outline" size="sm"><Link to="/auth">Sign in</Link></Button>
         </div>

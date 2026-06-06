@@ -33,7 +33,7 @@ export function AppSidebar() {
             <Leaf className="h-5 w-5" />
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="font-display text-base font-semibold text-sidebar-foreground">GreenGo</span>
+            <span className="font-display text-base font-semibold text-sidebar-foreground">MoveGreen</span>
             <span className="text-xs text-sidebar-foreground/60">Move sustainable</span>
           </div>
         </div>

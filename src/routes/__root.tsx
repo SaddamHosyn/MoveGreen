@@ -60,13 +60,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GreenGo — Sustainable mobility competition" },
+      { title: "MoveGreen - Sustainable mobility competition" },
       {
         name: "description",
         content:
           "Earn points for walking, cycling, and public transport. Compete with your company.",
       },
-      { property: "og:title", content: "GreenGo" },
+      { property: "og:title", content: "MoveGreen" },
       {
         property: "og:description",
         content: "Gamified sustainable mobility for organizations.",

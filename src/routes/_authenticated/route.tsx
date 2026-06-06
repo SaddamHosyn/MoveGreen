@@ -28,7 +28,7 @@ function AuthedLayout() {
         <SidebarInset className="flex flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
-            <span className="font-display text-sm font-medium text-muted-foreground">GreenGo</span>
+            <span className="font-display text-sm font-medium text-muted-foreground">MoveGreen</span>
           </header>
           <main className="flex-1 p-4 md:p-6">
             <Outlet />
