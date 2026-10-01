@@ -54,10 +54,8 @@ function CompanyPublic() {
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Leaf className="h-4 w-4" />
-            </div>
-            <span className="font-display font-semibold">MoveGreen</span>
+            <img src="/logo.svg" alt="SHIFT Åland" className="h-8 w-auto rounded-sm" />
+            <span className="font-display font-semibold">SHIFT Åland</span>
           </Link>
           <Button asChild variant="outline" size="sm"><Link to="/auth">Sign in</Link></Button>
         </div>

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Footprints, Bike, Bus, Users, Zap, MapPin, Loader2, Plus, Trash2, ArrowRight } from "lucide-react";
+import { Footprints, Bike, Bus, Users, Zap, Scooter, MapPin, Loader2, Plus, Trash2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,7 +18,23 @@ const ICONS: Record<string, any> = {
   bus: Bus,
   carpooling: Users,
   electric_bike: Zap,
+  e_scooter: Scooter,
 };
+
+const DEFAULT_RULES = [
+  { transport_type: "walking", points_per_km: 20 },
+  { transport_type: "cycling", points_per_km: 18 },
+  { transport_type: "electric_bike", points_per_km: 16 },
+  { transport_type: "e_scooter", points_per_km: 13 },
+  { transport_type: "bus", points_per_km: 12 },
+  { transport_type: "carpooling", points_per_km: 10 },
+];
+
+export function formatTransportType(type: string): string {
+  if (type === "e_scooter") return "E-Scooter";
+  if (type === "electric_bike") return "E-Bike";
+  return type.replace("_", " ");
+}
 
 type Segment = {
   id: string;
@@ -82,6 +98,8 @@ function LogActivity() {
     },
   });
 
+  const activeRules = rules && rules.length > 0 ? rules : DEFAULT_RULES;
+
   const updateSegment = (id: string, patch: Partial<Segment>) =>
     setSegments((s) => s.map((seg) => (seg.id === id ? { ...seg, ...patch } : seg)));
 
@@ -119,7 +137,7 @@ function LogActivity() {
   };
 
   const rateFor = (type: string) =>
-    Number(rules?.find((r) => r.transport_type === type)?.points_per_km ?? 0);
+    Number(activeRules.find((r) => r.transport_type === type)?.points_per_km ?? 0);
 
   const totalKm = segments.reduce((sum, s) => sum + (s.distance ?? 0), 0);
   const totalPoints = segments.reduce(
@@ -171,14 +189,14 @@ function LogActivity() {
       <div>
         <h1 className="text-2xl font-semibold md:text-3xl">Log a green trip</h1>
         <p className="text-sm text-muted-foreground">
-          Add one or more segments — e.g. walk to the bus, take the bus, then cycle home.
+          Add one or more segments — e.g. walk to the bus, take the bus, then ride an e-scooter home.
         </p>
       </div>
 
       <form onSubmit={submit} className="space-y-4">
         {segments.map((seg, idx) => {
           const Icon = ICONS[seg.type] ?? Footprints;
-          const segPts = Math.floor((seg.distance ?? 0) * rateFor(seg.type));
+          const segPts = Math.round((seg.distance ?? 0) * 0.129 * rateFor(seg.type));
           return (
             <Card key={seg.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -190,7 +208,7 @@ function LogActivity() {
                     Segment {idx + 1}
                     <span className="ml-2 inline-flex items-center gap-1 text-xs font-normal text-muted-foreground">
                       <Icon className="h-3.5 w-3.5" />
-                      {seg.type.replace("_", " ")}
+                      {formatTransportType(seg.type)}
                     </span>
                   </CardTitle>
                 </div>
@@ -209,8 +227,8 @@ function LogActivity() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="mb-2 block">Transport mode</Label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-                    {(rules ?? []).map((r) => {
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
+                    {activeRules.map((r) => {
                       const RIcon = ICONS[r.transport_type] ?? Footprints;
                       const active = seg.type === r.transport_type;
                       return (
@@ -227,7 +245,7 @@ function LogActivity() {
                         >
                           <RIcon className="h-5 w-5" />
                           <span className="font-medium capitalize">
-                            {r.transport_type.replace("_", " ")}
+                            {formatTransportType(r.transport_type)}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
                             {Number(r.points_per_km)} pts/km

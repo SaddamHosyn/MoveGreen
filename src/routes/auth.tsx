@@ -24,11 +24,9 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-secondary to-background px-4">
       <div className="w-full max-w-md">
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Leaf className="h-5 w-5" />
-          </div>
-          <span className="font-display text-2xl font-semibold">MoveGreen</span>
+        <div className="mb-8 flex items-center justify-center gap-3">
+          <img src="/logo.svg" alt="SHIFT Åland" className="h-12 w-auto rounded-lg shadow-sm" />
+          <span className="font-display text-2xl font-semibold">SHIFT Åland</span>
         </div>
         <Card>
           <CardHeader>

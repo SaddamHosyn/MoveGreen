@@ -28,14 +28,9 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-leaf text-sidebar-primary-foreground">
-            <Leaf className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="font-display text-base font-semibold text-sidebar-foreground">MoveGreen</span>
-            <span className="text-xs text-sidebar-foreground/60">Move sustainable</span>
-          </div>
+        <div className="flex items-center gap-2 px-2 py-3">
+          <img src="/logo.svg" alt="SHIFT Åland" className="h-9 w-auto rounded-sm" />
+          <span className="font-display text-base font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">SHIFT Åland</span>
         </div>
       </SidebarHeader>
 

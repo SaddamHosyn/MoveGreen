@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Leaf, Trophy, Users, ArrowRight, Bike, Bus, Footprints, Zap } from "lucide-react";
+import { Leaf, Trophy, Users, ArrowRight, Bike, Bus, Footprints, Zap, Scooter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,11 +34,9 @@ function Landing() {
       {/* Nav */}
       <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Leaf className="h-5 w-5" />
-            </div>
-            <span className="font-display text-lg font-semibold">MoveGreen</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src="/logo.svg" alt="SHIFT Åland" className="h-9 w-auto rounded-sm" />
+            <span className="font-display text-lg font-semibold">SHIFT Åland</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost"><Link to="/auth">Sign in</Link></Button>
@@ -58,7 +56,7 @@ function Landing() {
               Move green. Earn points. <span className="text-primary">Beat your company.</span>
             </h1>
             <p className="mt-4 text-base text-muted-foreground md:text-lg">
-              Track every walk, bike ride, bus trip, or carpool. Climb the leaderboard with your colleagues and put your organization on the global green map.
+              Track every walk, bike ride, e-scooter trip, bus trip, or carpool. Climb the leaderboard with your colleagues and put your organization on the global green map.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg"><Link to="/auth">Start competing <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
@@ -66,11 +64,12 @@ function Landing() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatCard icon={Footprints} label="Walking" value="2.0 pts/km" />
-            <StatCard icon={Bike} label="Cycling" value="1.5 pts/km" />
-            <StatCard icon={Zap} label="E-Bike" value="1.2 pts/km" />
-            <StatCard icon={Bus} label="Bus" value="1.0 pts/km" />
-            <StatCard icon={Users} label="Carpooling" value="0.5 pts/km" />
+            <StatCard icon={Footprints} label="Walking" value="20 pts/km" />
+            <StatCard icon={Bike} label="Cycling" value="18 pts/km" />
+            <StatCard icon={Zap} label="E-Bike" value="16 pts/km" />
+            <StatCard icon={Scooter} label="E-Scooter" value="13 pts/km" />
+            <StatCard icon={Bus} label="Bus" value="12 pts/km" />
+            <StatCard icon={Users} label="Carpooling" value="10 pts/km" />
           </div>
         </div>
       </section>
@@ -131,7 +130,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Built for a greener commute · MoveGreen
+        Built for a greener commute · SHIFT Åland
       </footer>
     </div>
   );

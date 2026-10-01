@@ -1,0 +1,237 @@
+{
+  "_meta": {
+    "project": "SHIFT Åland",
+    "description": "Shared seed / mock data for Web (Supabase) and Mobile app development. Keep this file in sync with supabase/migrations.",
+    "version": "1.0.0",
+    "lastUpdated": "2026-10-01"
+  },
+  "scoringRules": [
+    {
+      "transportType": "walking",
+      "label": "Walk",
+      "ptsPerKm": 20,
+      "icon": "Footprints",
+      "active": true
+    },
+    {
+      "transportType": "cycling",
+      "label": "Bike",
+      "ptsPerKm": 18,
+      "icon": "Bike",
+      "active": true
+    },
+    {
+      "transportType": "electric_bike",
+      "label": "Electric Bike",
+      "ptsPerKm": 16,
+      "icon": "Zap",
+      "active": true
+    },
+    {
+      "transportType": "e_scooter",
+      "label": "E-Scooter",
+      "ptsPerKm": 13,
+      "icon": "Scooter",
+      "active": true
+    },
+    {
+      "transportType": "bus",
+      "label": "Bus",
+      "ptsPerKm": 12,
+      "icon": "Bus",
+      "active": true
+    },
+    {
+      "transportType": "carpooling",
+      "label": "Carpool",
+      "ptsPerKm": 10,
+      "icon": "Users",
+      "active": true
+    }
+  ],
+  "pointsFormula": "ROUND(distance_km * 0.129 * ptsPerKm)",
+  "badges": [
+    {
+      "code": "welcome_aboard",
+      "name": "Welcome Aboard",
+      "description": "Joined your first company",
+      "icon": "Building2",
+      "thresholdKm": null,
+      "transportType": null,
+      "trigger": "on_company_join"
+    },
+    {
+      "code": "first_move",
+      "name": "First Move",
+      "description": "Logged your very first activity",
+      "icon": "Footprints",
+      "thresholdKm": null,
+      "transportType": null,
+      "trigger": "activity_count_1"
+    },
+    {
+      "code": "10km_commuter",
+      "name": "10km Commuter",
+      "description": "Reached 10 km of total logged distance",
+      "icon": "MapPin",
+      "thresholdKm": 10,
+      "transportType": null,
+      "trigger": "total_km_gte_10"
+    },
+    {
+      "code": "century_club",
+      "name": "Century Club",
+      "description": "Reached 100 total points",
+      "icon": "Star",
+      "thresholdKm": null,
+      "transportType": null,
+      "trigger": "total_points_gte_100"
+    },
+    {
+      "code": "eco_champion",
+      "name": "Eco Champion",
+      "description": "Reached 500 total points",
+      "icon": "Trophy",
+      "thresholdKm": null,
+      "transportType": null,
+      "trigger": "total_points_gte_500"
+    },
+    {
+      "code": "marathon_walker",
+      "name": "Marathon Walker",
+      "description": "Walked a total of 42 km",
+      "icon": "PersonStanding",
+      "thresholdKm": 42,
+      "transportType": "walking",
+      "trigger": "walking_km_gte_42"
+    },
+    {
+      "code": "tour_de_office",
+      "name": "Tour de Office",
+      "description": "Cycled a total of 50 km",
+      "icon": "Bike",
+      "thresholdKm": 50,
+      "transportType": "cycling",
+      "trigger": "cycling_km_gte_50"
+    },
+    {
+      "code": "transport_explorer",
+      "name": "Transport Explorer",
+      "description": "Logged at least 3 different transport types",
+      "icon": "Compass",
+      "thresholdKm": null,
+      "transportType": null,
+      "trigger": "distinct_types_gte_3"
+    }
+  ],
+  "sampleCompanies": [
+    {
+      "id": "c1",
+      "name": "Åland Tech Hub",
+      "slug": "aland-tech",
+      "allowedEmailDomain": "alandtech.ax",
+      "joinCode": "ALAND1",
+      "totalPoints": 2400
+    },
+    {
+      "id": "c2",
+      "name": "Green Maritime Åland",
+      "slug": "green-maritime",
+      "allowedEmailDomain": "greenmaritime.ax",
+      "joinCode": "GREEN2",
+      "totalPoints": 1800
+    },
+    {
+      "id": "c3",
+      "name": "Åland University",
+      "slug": "aland-university",
+      "allowedEmailDomain": "ha.ax",
+      "joinCode": "HAAAX3",
+      "totalPoints": 1250
+    }
+  ],
+  "sampleUsers": [
+    {
+      "id": "u1",
+      "name": "Elena Lindqvist",
+      "email": "elena@alandtech.ax",
+      "companyId": "c1",
+      "totalPoints": 620,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena"
+    },
+    {
+      "id": "u2",
+      "name": "Mikael Björk",
+      "email": "mikael@alandtech.ax",
+      "companyId": "c1",
+      "totalPoints": 480,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Mikael"
+    },
+    {
+      "id": "u3",
+      "name": "Sara Holmberg",
+      "email": "sara@greenmaritime.ax",
+      "companyId": "c2",
+      "totalPoints": 390,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Sara"
+    },
+    {
+      "id": "u4",
+      "name": "Johan Eriksson",
+      "email": "johan@ha.ax",
+      "companyId": "c3",
+      "totalPoints": 210,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Johan"
+    }
+  ],
+  "sampleActivities": [
+    {
+      "userId": "u1",
+      "transportType": "walking",
+      "distanceKm": 3.2,
+      "pointsEarned": 64
+    },
+    {
+      "userId": "u1",
+      "transportType": "cycling",
+      "distanceKm": 8.5,
+      "pointsEarned": 153
+    },
+    {
+      "userId": "u1",
+      "transportType": "electric_bike",
+      "distanceKm": 5.0,
+      "pointsEarned": 80
+    },
+    {
+      "userId": "u2",
+      "transportType": "e_scooter",
+      "distanceKm": 4.0,
+      "pointsEarned": 52
+    },
+    {
+      "userId": "u2",
+      "transportType": "bus",
+      "distanceKm": 12.0,
+      "pointsEarned": 144
+    },
+    {
+      "userId": "u3",
+      "transportType": "carpooling",
+      "distanceKm": 15.0,
+      "pointsEarned": 150
+    },
+    {
+      "userId": "u3",
+      "transportType": "cycling",
+      "distanceKm": 6.0,
+      "pointsEarned": 108
+    },
+    {
+      "userId": "u4",
+      "transportType": "walking",
+      "distanceKm": 2.5,
+      "pointsEarned": 50
+    }
+  ]
+}

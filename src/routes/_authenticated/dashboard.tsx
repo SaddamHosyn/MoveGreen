@@ -85,7 +85,13 @@ function Dashboard() {
                 {activities.map((a) => (
                   <li key={a.id} className="flex items-center justify-between py-3">
                     <div>
-                      <p className="font-medium capitalize">{a.transport_type.replace("_", " ")}</p>
+                      <p className="font-medium capitalize">
+                        {a.transport_type === "e_scooter"
+                          ? "E-Scooter"
+                          : a.transport_type === "electric_bike"
+                          ? "E-Bike"
+                          : a.transport_type.replace("_", " ")}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {a.distance_km} km · {new Date(a.created_at).toLocaleString()}
                       </p>
