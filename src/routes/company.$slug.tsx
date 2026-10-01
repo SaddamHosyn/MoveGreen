@@ -54,7 +54,7 @@ function CompanyPublic() {
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center">
-            <img src="/logo.svg" alt="SHIFT �land" className="h-12 w-auto" />
+            <img src="/logo.svg" alt="SHIFT �land" className="h-12 w-auto" />
             <span className="font-display font-semibold">SHIFT Åland</span>
           </Link>
           <Button asChild variant="outline" size="sm"><Link to="/auth">Sign in</Link></Button>
@@ -73,10 +73,10 @@ function CompanyPublic() {
             </div>
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-4">
-            <Stat icon={Trophy} label="Avg pts / active member" value={`${Number(company.avg_points ?? 0)} pts`} />
+            <Stat icon={Trophy} label="Total points" value={`${company.total_points} pts`} />
             <Stat icon={Trophy} label="Global rank" value={company.global_rank ? `#${company.global_rank}` : "—"} />
             <Stat icon={Users} label="Active members" value={`${company.active_member_count}/${company.member_count}`} />
-            <Stat icon={Trophy} label="Total points" value={`${company.total_points} pts`} />
+            <Stat icon={Trophy} label="Average per active member" value={`${Number(company.avg_points ?? 0)} pts`} />
           </div>
         </div>
       </header>

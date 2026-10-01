@@ -33,22 +33,79 @@ const MODE_ICONS: Record<string, any> = {
 const COMPANY_COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ec4899"];
 const MOVER_COLORS   = ["#f59e0b", "#06b6d4", "#10b981", "#8b5cf6", "#ec4899"];
 
+type PlatformStatRow = {
+  transport_type: string | null;
+  distance_km?: number | null;
+  total_km?: number | null;
+  trip_count?: number | null;
+  points_earned?: number | null;
+};
+
+type PlatformStats = {
+  total_trips: number;
+  total_km: number;
+  total_points: number;
+  total_co2_kg: number;
+  by_mode: { transport_type: string; trip_count: number; total_km: number; co2_kg: number }[];
+};
+
+function buildPlatformStatsFromActivities(rows: PlatformStatRow[]): PlatformStats {
+  const totals = rows.reduce((acc, row) => {
+    const transportType = row.transport_type ?? "unknown";
+    const km = Number(row.distance_km ?? row.total_km ?? 0);
+    const tripCount = Number(row.trip_count ?? 1);
+
+    acc.totalTrips += tripCount;
+    acc.totalKm += km;
+    acc.totalPoints += Number(row.points_earned ?? 0);
+
+    const mode = acc.byMode[transportType] ?? { trip_count: 0, total_km: 0 };
+    mode.trip_count += tripCount;
+    mode.total_km += km;
+    acc.byMode[transportType] = mode;
+    return acc;
+  }, {
+    totalTrips: 0,
+    totalKm: 0,
+    totalPoints: 0,
+    byMode: {} as Record<string, { trip_count: number; total_km: number }>,
+  });
+
+  return {
+    total_trips: totals.totalTrips,
+    total_km: Number(totals.totalKm.toFixed(2)),
+    total_points: totals.totalPoints,
+    total_co2_kg: Number((totals.totalKm * 0.129).toFixed(2)),
+    by_mode: Object.entries(totals.byMode)
+      .map(([transport_type, value]) => ({
+        transport_type,
+        trip_count: value.trip_count,
+        total_km: Number(value.total_km.toFixed(2)),
+        co2_kg: Number((value.total_km * 0.129).toFixed(2)),
+      }))
+      .sort((a, b) => b.total_km - a.total_km),
+  };
+}
+
 function Analytics() {
   const { user } = useAuth();
 
   // Platform-wide activity stats via SECURITY DEFINER RPC (bypasses RLS, returns all users' data)
-  const { data: stats, isLoading: loadingStats } = useQuery({
+  const { data: stats, isLoading: loadingStats, error: statsError } = useQuery({
     queryKey: ["platform-stats"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_platform_stats");
-      if (error) throw error;
-      return data as {
-        total_trips: number;
-        total_km: number;
-        total_points: number;
-        total_co2_kg: number;
-        by_mode: { transport_type: string; trip_count: number; total_km: number; co2_kg: number }[];
-      };
+      if (!error) {
+        return data as PlatformStats;
+      }
+
+      const { data: activities, error: activitiesError } = await supabase
+        .from("activities")
+        .select("transport_type, distance_km, points_earned")
+        .order("created_at", { ascending: false });
+
+      if (activitiesError) throw activitiesError;
+      return buildPlatformStatsFromActivities((activities ?? []) as PlatformStatRow[]);
     },
     enabled: !!user,
   });
@@ -123,6 +180,7 @@ function Analytics() {
     }));
 
   const noActivity = !stats || (stats.total_trips ?? 0) === 0;
+  const showStatsError = !!statsError && !stats;
 
   return (
     <div className="space-y-8">
@@ -144,7 +202,9 @@ function Analytics() {
             <CardDescription>Kilograms of CO₂ saved per transport type (distance × 0.129 kg/km)</CardDescription>
           </CardHeader>
           <CardContent>
-            {noActivity ? (
+            {showStatsError ? (
+              <ErrorState text="Analytics data isn’t available right now. Check your Supabase connection and try again." />
+            ) : noActivity ? (
               <EmptyState text="Log some trips to see your CO₂ impact." />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
@@ -172,7 +232,9 @@ function Analytics() {
             <CardDescription>Proportion of trips logged per transport type</CardDescription>
           </CardHeader>
           <CardContent>
-            {noActivity ? (
+            {showStatsError ? (
+              <ErrorState text="Analytics data isn’t available right now. Check your Supabase connection and try again." />
+            ) : noActivity ? (
               <EmptyState text="Log some trips to see your trip breakdown." />
             ) : (
               <div className="flex flex-col items-center gap-4 sm:flex-row">
@@ -281,6 +343,14 @@ function EmptyState({ text }: { text: string }) {
   return (
     <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-border">
       <p className="text-sm text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
+function ErrorState({ text }: { text: string }) {
+  return (
+    <div className="flex h-[220px] items-center justify-center rounded-lg border border-dashed border-destructive/40 bg-destructive/5">
+      <p className="max-w-sm text-center text-sm text-destructive">{text}</p>
     </div>
   );
 }

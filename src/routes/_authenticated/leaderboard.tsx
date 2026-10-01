@@ -78,12 +78,12 @@ function Leaderboard() {
 
         <TabsContent value="companies">
           <Board
-            title="Top companies (avg pts / active member)"
+            title="Top companies by total points"
             rows={(companies ?? []).map((c: any) => ({
               rank: c.rank,
               name: c.name,
               sub: `${c.active_member_count}/${c.member_count} active · ${c.total_points} total pts`,
-              points: Number(c.avg_points ?? 0),
+              points: Number(c.total_points ?? 0),
               highlight: c.company_id === rank?.company_id,
             }))}
           />
