@@ -25,7 +25,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-secondary to-background px-4">
       <div className="w-full max-w-md">
         <div className="mb-8 flex items-center justify-center">
-          <img src="/logo.svg" alt="SHIFT Åland" className="h-20 w-auto" />
+          <img src="/logo.webp" alt="SHIFT ï¿½land" className="h-20 w-auto" />
           <span className="font-display text-2xl font-semibold">SHIFT Ã…land</span>
         </div>
         <Card>

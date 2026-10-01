@@ -35,7 +35,7 @@ function Landing() {
       <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center">
-            <img src="/logo.svg" alt="SHIFT �land" className="h-14 w-auto" />
+            <img src="/logo.webp" alt="SHIFT �land" className="h-14 w-auto" />
             <span className="font-display text-lg font-semibold">SHIFT Åland</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -134,7 +134,7 @@ function Landing() {
           <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
             <div className="flex flex-col gap-6">
               <Link to="/" className="flex items-center">
-                <img src="/logo.svg" alt="SHIFT Aland" className="h-14 w-auto" />
+                <img src="/logo.webp" alt="SHIFT Aland" className="h-14 w-auto" />
                 <span className="font-display text-lg font-semibold">SHIFT Aland</span>
               </Link>
               <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">Rewarding sustainable commuting across Aland. Every green trip counts.</p>
