@@ -52,6 +52,10 @@ function Leaderboard() {
     enabled: !!rank?.company_id,
   });
 
+  const rankedCompanies = [...(companies ?? [])]
+    .sort((a: any, b: any) => Number(b.total_points ?? 0) - Number(a.total_points ?? 0))
+    .map((company: any, index) => ({ ...company, rank: index + 1 }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -79,7 +83,7 @@ function Leaderboard() {
         <TabsContent value="companies">
           <Board
             title="Top companies by total points"
-            rows={(companies ?? []).map((c: any) => ({
+            rows={rankedCompanies.map((c: any) => ({
               rank: c.rank,
               name: c.name,
               sub: `${c.active_member_count}/${c.member_count} active · ${c.total_points} total pts`,

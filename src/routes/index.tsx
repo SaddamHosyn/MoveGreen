@@ -29,6 +29,10 @@ function Landing() {
     },
   });
 
+  const rankedCompanies = [...(companies ?? [])]
+    .sort((a: any, b: any) => Number(b.total_points ?? 0) - Number(a.total_points ?? 0))
+    .map((company: any, index) => ({ ...company, rank: index + 1 }));
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -85,7 +89,7 @@ function Landing() {
             </CardHeader>
             <CardContent>
               <ol className="space-y-2">
-                {(companies ?? []).map((c: any) => (
+                {rankedCompanies.map((c: any) => (
                   <li key={c.company_id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 hover:bg-secondary">
                     <Link to="/company/$slug" params={{ slug: c.public_slug }} className="flex items-center">
                       <span className="w-6 text-sm font-semibold text-muted-foreground">#{c.rank}</span>
