@@ -53,8 +53,8 @@ function CompanyPublic() {
     <div className="min-h-screen bg-background">
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.svg" alt="SHIFT Åland" className="h-8 w-auto rounded-sm" />
+          <Link to="/" className="flex items-center">
+            <img src="/logo.svg" alt="SHIFT �land" className="h-12 w-auto" />
             <span className="font-display font-semibold">SHIFT Åland</span>
           </Link>
           <Button asChild variant="outline" size="sm"><Link to="/auth">Sign in</Link></Button>
@@ -84,7 +84,7 @@ function CompanyPublic() {
       <section className="mx-auto max-w-5xl px-4 py-10">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-display"><Trophy className="h-5 w-5 text-leaf" /> Top members</CardTitle>
+            <CardTitle className="flex items-center font-display"><Trophy className="h-5 w-5 text-leaf" /> Top members</CardTitle>
           </CardHeader>
           <CardContent>
             {(!members || members.length === 0) ? (

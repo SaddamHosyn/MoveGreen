@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, PlusCircle, Trophy, Building2, Leaf, LogOut, Globe } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Trophy, Building2, Leaf, LogOut, Globe, BarChart2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +19,7 @@ const items = [
   { title: "Log Activity", url: "/log", icon: PlusCircle },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
   { title: "My Company", url: "/company", icon: Building2 },
+  { title: "Analytics", url: "/analytics", icon: BarChart2 },
 ];
 
 export function AppSidebar() {
@@ -28,8 +29,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-3">
-          <img src="/logo.svg" alt="SHIFT Åland" className="h-9 w-auto rounded-sm" />
+        <div className="flex items-center px-2 py-3">
+          <img src="/logo.svg" alt="SHIFT �land" className="h-16 w-auto" />
           <span className="font-display text-base font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">SHIFT Åland</span>
         </div>
       </SidebarHeader>

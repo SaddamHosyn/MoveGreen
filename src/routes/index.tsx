@@ -14,7 +14,7 @@ function Landing() {
   const { data: companies } = useQuery({
     queryKey: ["pub-companies"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 10, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 5, _offset: 0 });
       if (error) throw error;
       return data;
     },
@@ -23,7 +23,7 @@ function Landing() {
   const { data: topUsers } = useQuery({
     queryKey: ["pub-top-users"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_top_users", { _limit: 10, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_top_users", { _limit: 5, _offset: 0 });
       if (error) throw error;
       return data;
     },
@@ -34,8 +34,8 @@ function Landing() {
       {/* Nav */}
       <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-3">
-            <img src="/logo.svg" alt="SHIFT Åland" className="h-9 w-auto rounded-sm" />
+          <Link to="/" className="flex items-center">
+            <img src="/logo.svg" alt="SHIFT �land" className="h-14 w-auto" />
             <span className="font-display text-lg font-semibold">SHIFT Åland</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ function Landing() {
               <ol className="space-y-2">
                 {(companies ?? []).map((c: any) => (
                   <li key={c.company_id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 hover:bg-secondary">
-                    <Link to="/company/$slug" params={{ slug: c.public_slug }} className="flex items-center gap-3">
+                    <Link to="/company/$slug" params={{ slug: c.public_slug }} className="flex items-center">
                       <span className="w-6 text-sm font-semibold text-muted-foreground">#{c.rank}</span>
                       <div>
                         <p className="font-medium">{c.name}</p>
@@ -112,7 +112,7 @@ function Landing() {
               <ol className="space-y-2">
                 {(topUsers ?? []).map((u: any) => (
                   <li key={u.user_id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center">
                       <span className="w-6 text-sm font-semibold text-muted-foreground">#{u.rank}</span>
                       <div>
                         <p className="font-medium">{u.name}</p>
@@ -129,8 +129,38 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Built for a greener commute · SHIFT Åland
+      <footer className="border-t border-border bg-background">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+            <div className="flex flex-col gap-6">
+              <Link to="/" className="flex items-center">
+                <img src="/logo.svg" alt="SHIFT Aland" className="h-14 w-auto" />
+                <span className="font-display text-lg font-semibold">SHIFT Aland</span>
+              </Link>
+              <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">Rewarding sustainable commuting across Aland. Every green trip counts.</p>
+              <nav className="flex flex-col gap-2">
+                {[
+                  { label: "Get Started", to: "/auth" },
+                  { label: "Log a Trip", to: "/log" },
+                  { label: "Leaderboard", to: "/leaderboard" },
+                  { label: "Contact", to: "/auth" },
+                ].map((link) => (
+                  <Link key={link.label} to={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">{link.label}</Link>
+                ))}
+              </nav>
+            </div>
+            <div className="flex flex-col items-center gap-3">
+              <div className="rounded-xl border border-border bg-white p-3 shadow-sm">
+                <img src="/shift-aland.webp" alt="SHIFT Aland QR Code" className="h-36 w-36 object-contain" />
+              </div>
+              <p className="text-xs text-muted-foreground">Scan to open the app</p>
+            </div>
+          </div>
+          <div className="mt-10 border-t border-border pt-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <p className="text-xs text-muted-foreground">Built for a greener commute - SHIFT Aland</p>
+            <p className="text-xs text-muted-foreground">Powered by sustainable mobility</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
