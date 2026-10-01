@@ -22,15 +22,6 @@ const ICONS: Record<string, any> = {
   "E-Scooter": Scooter,
 };
 
-const DEFAULT_RULES = [
-  { transport_type: "Walk", points_per_km: 20 },
-  { transport_type: "Bike", points_per_km: 18 },
-  { transport_type: "Electric Bike", points_per_km: 16 },
-  { transport_type: "E-Scooter", points_per_km: 13 },
-  { transport_type: "Bus", points_per_km: 12 },
-  { transport_type: "Carpool", points_per_km: 10 },
-];
-
 type Segment = {
   id: string;
   type: string;
@@ -80,7 +71,11 @@ function LogActivity() {
   const [segments, setSegments] = useState<Segment[]>([newSegment()]);
   const [busy, setBusy] = useState(false);
 
-  const { data: rules } = useQuery({
+  const {
+    data: rules,
+    error: rulesError,
+    isLoading: rulesLoading,
+  } = useQuery({
     queryKey: ["scoring-rules"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -93,7 +88,7 @@ function LogActivity() {
     },
   });
 
-  const activeRules = rules && rules.length > 0 ? rules : DEFAULT_RULES;
+  const activeRules = rules ?? [];
 
   const updateSegment = (id: string, patch: Partial<Segment>) =>
     setSegments((s) => s.map((seg) => (seg.id === id ? { ...seg, ...patch } : seg)));
@@ -141,6 +136,7 @@ function LogActivity() {
   );
 
   const canSubmit =
+    activeRules.length > 0 &&
     segments.length > 0 &&
     segments.every((s) => s.distance && s.distance > 0) &&
     !segments.some((s) => s.calculating);
@@ -191,7 +187,7 @@ function LogActivity() {
       <form onSubmit={submit} className="space-y-4">
         {segments.map((seg, idx) => {
           const Icon = ICONS[seg.type] ?? Footprints;
-          const segPts = Math.round((seg.distance ?? 0) * 0.129 * rateFor(seg.type));
+          const segPts = Math.floor((seg.distance ?? 0) * rateFor(seg.type));
           return (
             <Card key={seg.id}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -222,33 +218,51 @@ function LogActivity() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="mb-2 block">Transport mode</Label>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
-                    {activeRules.map((r) => {
-                      const RIcon = ICONS[r.transport_type] ?? Footprints;
-                      const active = seg.type === r.transport_type;
-                      return (
-                        <button
-                          type="button"
-                          key={r.transport_type}
-                          onClick={() => updateSegment(seg.id, { type: r.transport_type })}
-                          className={cn(
-                            "flex flex-col items-center gap-1 rounded-lg border p-3 text-xs transition-colors",
-                            active
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-border hover:bg-secondary",
-                          )}
-                        >
-                          <RIcon className="h-5 w-5" />
-                          <span className="font-medium capitalize">
-                            {formatTransportType(r.transport_type)}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {Number(r.points_per_km)} pts/km
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {rulesLoading && (
+                    <div className="flex items-center gap-2 rounded-md border p-4 text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Loading transport modes from Supabase…
+                    </div>
+                  )}
+                  {rulesError && (
+                    <div className="rounded-md border border-destructive/50 p-4 text-sm text-destructive">
+                      Could not load transport modes from Supabase: {rulesError.message}
+                    </div>
+                  )}
+                  {!rulesLoading && !rulesError && activeRules.length === 0 && (
+                    <div className="rounded-md border border-destructive/50 p-4 text-sm text-destructive">
+                      No active transport scoring rules were found in Supabase.
+                    </div>
+                  )}
+                  {activeRules.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
+                      {activeRules.map((r) => {
+                        const RIcon = ICONS[r.transport_type] ?? Footprints;
+                        const active = seg.type === r.transport_type;
+                        return (
+                          <button
+                            type="button"
+                            key={r.transport_type}
+                            onClick={() => updateSegment(seg.id, { type: r.transport_type })}
+                            className={cn(
+                              "flex flex-col items-center gap-1 rounded-lg border p-3 text-xs transition-colors",
+                              active
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border hover:bg-secondary",
+                            )}
+                          >
+                            <RIcon className="h-5 w-5" />
+                            <span className="font-medium capitalize">
+                              {formatTransportType(r.transport_type)}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {Number(r.points_per_km)} pts/km
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
