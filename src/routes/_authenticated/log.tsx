@@ -9,32 +9,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { formatTransportType } from "@/lib/transport";
 
 export const Route = createFileRoute("/_authenticated/log")({ component: LogActivity });
 
 const ICONS: Record<string, any> = {
-  walking: Footprints,
-  cycling: Bike,
-  bus: Bus,
-  carpooling: Users,
-  electric_bike: Zap,
-  e_scooter: Scooter,
+  Walk: Footprints,
+  Bike: Bike,
+  Bus: Bus,
+  Carpool: Users,
+  "Electric Bike": Zap,
+  "E-Scooter": Scooter,
 };
 
 const DEFAULT_RULES = [
-  { transport_type: "walking", points_per_km: 20 },
-  { transport_type: "cycling", points_per_km: 18 },
-  { transport_type: "electric_bike", points_per_km: 16 },
-  { transport_type: "e_scooter", points_per_km: 13 },
-  { transport_type: "bus", points_per_km: 12 },
-  { transport_type: "carpooling", points_per_km: 10 },
+  { transport_type: "Walk", points_per_km: 20 },
+  { transport_type: "Bike", points_per_km: 18 },
+  { transport_type: "Electric Bike", points_per_km: 16 },
+  { transport_type: "E-Scooter", points_per_km: 13 },
+  { transport_type: "Bus", points_per_km: 12 },
+  { transport_type: "Carpool", points_per_km: 10 },
 ];
-
-export function formatTransportType(type: string): string {
-  if (type === "e_scooter") return "E-Scooter";
-  if (type === "electric_bike") return "E-Bike";
-  return type.replace("_", " ");
-}
 
 type Segment = {
   id: string;
@@ -45,7 +40,7 @@ type Segment = {
   calculating: boolean;
 };
 
-function newSegment(type = "walking"): Segment {
+function newSegment(type = "Walk"): Segment {
   return {
     id: Math.random().toString(36).slice(2),
     type,
@@ -106,7 +101,7 @@ function LogActivity() {
   const addSegment = () => {
     setSegments((s) => {
       const last = s[s.length - 1];
-      const next = newSegment(last?.type ?? "walking");
+      const next = newSegment(last?.type ?? "Walk");
       // chain: new segment starts where last ended
       if (last?.destination) next.origin = last.destination;
       return [...s, next];

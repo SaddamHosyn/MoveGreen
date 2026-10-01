@@ -72,11 +72,10 @@ function CompanyPublic() {
               <p className="text-sm text-muted-foreground">/company/{company.public_slug}</p>
             </div>
           </div>
-          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <Stat icon={Trophy} label="Total points" value={`${company.total_points} pts`} />
             <Stat icon={Trophy} label="Global rank" value={company.global_rank ? `#${company.global_rank}` : "—"} />
             <Stat icon={Users} label="Active members" value={`${company.active_member_count}/${company.member_count}`} />
-            <Stat icon={Trophy} label="Average per active member" value={`${Number(company.avg_points ?? 0)} pts`} />
           </div>
         </div>
       </header>

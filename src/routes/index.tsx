@@ -64,12 +64,12 @@ function Landing() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatCard icon={Footprints} label="Walking" value="20 pts/km" />
-            <StatCard icon={Bike} label="Cycling" value="18 pts/km" />
-            <StatCard icon={Zap} label="E-Bike" value="16 pts/km" />
+            <StatCard icon={Footprints} label="Walk" value="20 pts/km" />
+            <StatCard icon={Bike} label="Bike" value="18 pts/km" />
+            <StatCard icon={Zap} label="Electric Bike" value="16 pts/km" />
             <StatCard icon={Scooter} label="E-Scooter" value="13 pts/km" />
             <StatCard icon={Bus} label="Bus" value="12 pts/km" />
-            <StatCard icon={Users} label="Carpooling" value="10 pts/km" />
+            <StatCard icon={Users} label="Carpool" value="10 pts/km" />
           </div>
         </div>
       </section>

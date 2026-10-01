@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { formatTransportType } from "@/lib/transport";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -12,22 +13,17 @@ import { Footprints, Bike, Bus, Users, Zap, Scooter, BarChart2 } from "lucide-re
 export const Route = createFileRoute("/_authenticated/analytics")({ component: Analytics });
 
 const MODE_COLORS: Record<string, string> = {
-  walking:       "#10b981",
-  cycling:       "#3b82f6",
-  electric_bike: "#8b5cf6",
-  e_scooter:     "#f59e0b",
-  bus:           "#06b6d4",
-  carpooling:    "#ec4899",
-};
-
-const MODE_LABELS: Record<string, string> = {
-  walking: "Walk", cycling: "Bike", electric_bike: "E-Bike",
-  e_scooter: "E-Scooter", bus: "Bus", carpooling: "Carpool",
+  Walk:          "#10b981",
+  Bike:          "#3b82f6",
+  "Electric Bike": "#8b5cf6",
+  "E-Scooter":   "#f59e0b",
+  Bus:           "#06b6d4",
+  Carpool:       "#ec4899",
 };
 
 const MODE_ICONS: Record<string, any> = {
-  walking: Footprints, cycling: Bike, electric_bike: Zap,
-  e_scooter: Scooter, bus: Bus, carpooling: Users,
+  Walk: Footprints, Bike: Bike, "Electric Bike": Zap,
+  "E-Scooter": Scooter, Bus: Bus, Carpool: Users,
 };
 
 const COMPANY_COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ec4899"];
@@ -143,7 +139,7 @@ function Analytics() {
   }
 
   // ── CO₂ by mode — all 6 modes, from platform-wide RPC ──
-  const ALL_MODES = ["walking", "cycling", "electric_bike", "e_scooter", "bus", "carpooling"];
+  const ALL_MODES = ["Walk", "Bike", "Electric Bike", "E-Scooter", "Bus", "Carpool"];
 
   const modeMap: Record<string, { km: number; count: number }> = {};
   for (const m of ALL_MODES) modeMap[m] = { km: 0, count: 0 };
@@ -154,7 +150,7 @@ function Analytics() {
   }
 
   const co2Data = ALL_MODES.map(mode => ({
-    label: MODE_LABELS[mode] ?? mode,
+    label: formatTransportType(mode),
     co2:   Math.round(modeMap[mode].km * 0.129 * 100) / 100,
     count: modeMap[mode].count,
     fill:  MODE_COLORS[mode] ?? "#6b7280",

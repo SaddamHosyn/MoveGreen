@@ -7,42 +7,42 @@
   },
   "scoringRules": [
     {
-      "transportType": "walking",
+      "transportType": "Walk",
       "label": "Walk",
       "ptsPerKm": 20,
       "icon": "Footprints",
       "active": true
     },
     {
-      "transportType": "cycling",
+      "transportType": "Bike",
       "label": "Bike",
       "ptsPerKm": 18,
       "icon": "Bike",
       "active": true
     },
     {
-      "transportType": "electric_bike",
+      "transportType": "Electric Bike",
       "label": "Electric Bike",
       "ptsPerKm": 16,
       "icon": "Zap",
       "active": true
     },
     {
-      "transportType": "e_scooter",
+      "transportType": "E-Scooter",
       "label": "E-Scooter",
       "ptsPerKm": 13,
       "icon": "Scooter",
       "active": true
     },
     {
-      "transportType": "bus",
+      "transportType": "Bus",
       "label": "Bus",
       "ptsPerKm": 12,
       "icon": "Bus",
       "active": true
     },
     {
-      "transportType": "carpooling",
+      "transportType": "Carpool",
       "label": "Carpool",
       "ptsPerKm": 10,
       "icon": "Users",
@@ -102,8 +102,8 @@
       "description": "Walked a total of 42 km",
       "icon": "PersonStanding",
       "thresholdKm": 42,
-      "transportType": "walking",
-      "trigger": "walking_km_gte_42"
+      "transportType": "Walk",
+      "trigger": "Walk_km_gte_42"
     },
     {
       "code": "tour_de_office",
@@ -111,8 +111,8 @@
       "description": "Cycled a total of 50 km",
       "icon": "Bike",
       "thresholdKm": 50,
-      "transportType": "cycling",
-      "trigger": "cycling_km_gte_50"
+      "transportType": "Bike",
+      "trigger": "Bike_km_gte_50"
     },
     {
       "code": "transport_explorer",
@@ -187,49 +187,49 @@
   "sampleActivities": [
     {
       "userId": "u1",
-      "transportType": "walking",
+      "transportType": "Walk",
       "distanceKm": 3.2,
       "pointsEarned": 64
     },
     {
       "userId": "u1",
-      "transportType": "cycling",
+      "transportType": "Bike",
       "distanceKm": 8.5,
       "pointsEarned": 153
     },
     {
       "userId": "u1",
-      "transportType": "electric_bike",
+      "transportType": "Electric Bike",
       "distanceKm": 5.0,
       "pointsEarned": 80
     },
     {
       "userId": "u2",
-      "transportType": "e_scooter",
+      "transportType": "E-Scooter",
       "distanceKm": 4.0,
       "pointsEarned": 52
     },
     {
       "userId": "u2",
-      "transportType": "bus",
+      "transportType": "Bus",
       "distanceKm": 12.0,
       "pointsEarned": 144
     },
     {
       "userId": "u3",
-      "transportType": "carpooling",
+      "transportType": "Carpool",
       "distanceKm": 15.0,
       "pointsEarned": 150
     },
     {
       "userId": "u3",
-      "transportType": "cycling",
+      "transportType": "Bike",
       "distanceKm": 6.0,
       "pointsEarned": 108
     },
     {
       "userId": "u4",
-      "transportType": "walking",
+      "transportType": "Walk",
       "distanceKm": 2.5,
       "pointsEarned": 50
     }

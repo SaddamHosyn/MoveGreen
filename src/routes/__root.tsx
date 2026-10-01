@@ -64,7 +64,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Earn points for walking, cycling, and public transport. Compete with your company.",
+          "Earn points for Walk, Bike, and public transport. Compete with your company.",
       },
       { property: "og:title", content: "SHIFT Åland" },
       {

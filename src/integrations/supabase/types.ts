@@ -410,7 +410,6 @@ export type Database = {
         Args: { _slug: string }
         Returns: {
           active_member_count: number
-          avg_points: number
           company_id: string
           global_rank: number
           member_count: number
@@ -423,7 +422,6 @@ export type Database = {
         Args: { _limit?: number; _offset?: number }
         Returns: {
           active_member_count: number
-          avg_points: number
           company_id: string
           member_count: number
           name: string

@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatTransportType } from "@/lib/transport";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
 
@@ -86,11 +87,7 @@ function Dashboard() {
                   <li key={a.id} className="flex items-center justify-between py-3">
                     <div>
                       <p className="font-medium capitalize">
-                        {a.transport_type === "e_scooter"
-                          ? "E-Scooter"
-                          : a.transport_type === "electric_bike"
-                          ? "E-Bike"
-                          : a.transport_type.replace("_", " ")}
+                        {formatTransportType(a.transport_type)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {a.distance_km} km · {new Date(a.created_at).toLocaleString()}
