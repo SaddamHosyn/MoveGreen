@@ -38,3 +38,6 @@ dist-ssr
 # txt files
 *.txt
 
+
+.dev.vars*
+!.dev.vars.example
