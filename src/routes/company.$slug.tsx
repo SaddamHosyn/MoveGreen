@@ -54,7 +54,7 @@ function CompanyPublic() {
       <nav className="border-b border-border bg-background">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center">
-            <img src="/logo.webp" alt="SHIFT �land" className="h-12 w-auto" />
+            <img src="/logo.png" alt="SHIFT Åland" className="h-12 w-auto" />
             <span className="font-display font-semibold">SHIFT Åland</span>
           </Link>
           <Button asChild variant="outline" size="sm"><Link to="/auth">Sign in</Link></Button>

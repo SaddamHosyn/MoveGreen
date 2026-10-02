@@ -37,6 +37,8 @@ function Dashboard() {
       return data;
     },
     enabled: !!user,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const { data: badges } = useQuery({
@@ -50,6 +52,8 @@ function Dashboard() {
       return data;
     },
     enabled: !!user,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   return (

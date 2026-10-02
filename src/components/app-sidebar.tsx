@@ -29,8 +29,8 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center px-2 py-3">
-          <img src="/logo.webp" alt="SHIFT �land" className="h-16 w-auto" />
+        <div className="flex items-center gap-2 px-2 py-3">
+          <img src="/logo.png" alt="SHIFT Åland" className="h-10 w-auto" />
           <span className="font-display text-base font-semibold text-sidebar-foreground group-data-[collapsible=icon]:hidden">SHIFT Åland</span>
         </div>
       </SidebarHeader>

@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Leaf, Trophy, Users, ArrowRight, Bike, Bus, Footprints, Zap, Scooter } from "lucide-react";
+import { Leaf, Trophy, Users, ArrowRight, Bike, Bus, Footprints, Zap, Scooter, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PublicAnalytics } from "@/components/public-analytics";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -14,36 +15,43 @@ function Landing() {
   const { data: companies } = useQuery({
     queryKey: ["pub-companies"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 5, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 10, _offset: 0 });
       if (error) throw error;
-      return data;
+      return (data ?? []).filter((c: any) => !c.name?.toLowerCase().includes("saadi"));
     },
   });
 
   const { data: topUsers } = useQuery({
     queryKey: ["pub-top-users"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_top_users", { _limit: 5, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_top_users", { _limit: 10, _offset: 0 });
       if (error) throw error;
-      return data;
+      return (data ?? []).filter((u: any) => !u.name?.toLowerCase().includes("saadi"));
     },
   });
 
   const rankedCompanies = [...(companies ?? [])]
     .sort((a: any, b: any) => Number(b.total_points ?? 0) - Number(a.total_points ?? 0))
+    .slice(0, 5)
     .map((company: any, index) => ({ ...company, rank: index + 1 }));
+
+  const rankedTopUsers = [...(topUsers ?? [])]
+    .slice(0, 5)
+    .map((user: any, index) => ({ ...user, rank: index + 1 }));
 
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
       <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center">
-            <img src="/logo.webp" alt="SHIFT �land" className="h-14 w-auto" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/logo.png" alt="SHIFT Åland" className="h-12 w-auto" />
             <span className="font-display text-lg font-semibold">SHIFT Åland</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost"><Link to="/auth">Sign in</Link></Button>
+          <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium">
+            <a href="#leaderboard" className="text-muted-foreground transition-colors hover:text-leaf">Leaderboard</a>
+            <a href="#analytics" className="text-muted-foreground transition-colors hover:text-leaf">Analytics</a>
+            <Link to="/auth" className="hidden sm:inline-block text-muted-foreground transition-colors hover:text-leaf">Sign in</Link>
             <Button asChild><Link to="/auth">Get started</Link></Button>
           </div>
         </div>
@@ -62,9 +70,9 @@ function Landing() {
             <p className="mt-4 text-base text-muted-foreground md:text-lg">
               Track every walk, bike ride, e-scooter trip, bus trip, or carpool. Climb the leaderboard with your colleagues and put your organization on the global green map.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Button asChild size="lg"><Link to="/auth">Start competing <ArrowRight className="ml-1 h-4 w-4" /></Link></Button>
-              <Button asChild size="lg" variant="outline"><a href="#leaderboard">View leaderboard</a></Button>
+              <Button asChild size="lg" variant="outline"><a href="#leaderboard">Explore platform</a></Button>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -114,7 +122,7 @@ function Landing() {
             </CardHeader>
             <CardContent>
               <ol className="space-y-2">
-                {(topUsers ?? []).map((u: any) => (
+                {rankedTopUsers.map((u: any) => (
                   <li key={u.user_id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
                     <div className="flex items-center">
                       <span className="w-6 text-sm font-semibold text-muted-foreground">#{u.rank}</span>
@@ -126,33 +134,54 @@ function Landing() {
                     <span className="font-display font-semibold text-primary">{u.total_points} pts</span>
                   </li>
                 ))}
-                {(!topUsers || topUsers.length === 0) && <EmptyRow text="No activity yet" />}
+                {(!rankedTopUsers || rankedTopUsers.length === 0) && <EmptyRow text="No activity yet" />}
               </ol>
             </CardContent>
           </Card>
         </div>
       </section>
 
+      {/* Analytics Graphs & Metrics */}
+      <section id="analytics" className="mx-auto max-w-6xl px-4 py-12 border-t border-border">
+        <PublicAnalytics companies={companies} topUsers={topUsers} />
+      </section>
+
       <footer className="border-t border-border bg-background">
         <div className="mx-auto max-w-6xl px-4 py-12">
           <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
             <div className="flex flex-col gap-6">
-              <Link to="/" className="flex items-center">
-                <img src="/logo.webp" alt="SHIFT Aland" className="h-14 w-auto" />
+              <Link to="/" className="flex items-center gap-2">
+                <img src="/logo.png" alt="SHIFT Åland" className="h-14 w-auto" />
                 <span className="font-display text-lg font-semibold">SHIFT Aland</span>
               </Link>
               <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">Rewarding sustainable commuting across Aland. Every green trip counts.</p>
-              <nav className="flex flex-col gap-2">
-                {[
-                  { label: "Get Started", to: "/auth" },
-                  { label: "Log a Trip", to: "/log" },
-                  { label: "Leaderboard", to: "/leaderboard" },
-                  { label: "Contact", to: "/auth" },
-                ].map((link) => (
-                  <Link key={link.label} to={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">{link.label}</Link>
-                ))}
+              <nav className="flex flex-col gap-2 font-medium">
+                <a href="#leaderboard" className="text-sm text-muted-foreground transition-colors hover:text-leaf">Leaderboard</a>
+                <a href="#analytics" className="text-sm text-muted-foreground transition-colors hover:text-leaf">Platform Analytics</a>
+                <Link to="/auth" className="text-sm text-muted-foreground transition-colors hover:text-leaf">Get Started</Link>
               </nav>
             </div>
+
+            {/* Contact Section */}
+            <div className="flex flex-col gap-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Contact</h3>
+              <p className="text-xs text-muted-foreground">Team Contacts:</p>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2 font-medium text-foreground">
+                  <Mail className="h-4 w-4 text-leaf" />
+                  <span>Saddam</span>
+                </li>
+                <li className="flex items-center gap-2 font-medium text-foreground">
+                  <Mail className="h-4 w-4 text-leaf" />
+                  <span>Joon</span>
+                </li>
+                <li className="flex items-center gap-2 font-medium text-foreground">
+                  <Mail className="h-4 w-4 text-leaf" />
+                  <span>Mayuree</span>
+                </li>
+              </ul>
+            </div>
+
             <div className="flex flex-col items-center gap-3">
               <div className="rounded-xl border border-border bg-white p-3 shadow-sm">
                 <img src="/shift-aland.webp" alt="SHIFT Aland QR Code" className="h-36 w-36 object-contain" />

@@ -205,7 +205,7 @@ function MyCompany({ company, onChange }: { company: any; onChange: () => void }
           <h1 className="text-2xl font-semibold md:text-3xl">My company</h1>
           <p className="text-sm text-muted-foreground">Your current team.</p>
         </div>
-        <Button variant="outline" onClick={leave}><LogOut className="mr-2 h-4 w-4" /> Leave</Button>
+        <Button onClick={leave} className="shadow-sm"><LogOut className="mr-2 h-4 w-4" /> Leave</Button>
       </div>
 
       <Card>

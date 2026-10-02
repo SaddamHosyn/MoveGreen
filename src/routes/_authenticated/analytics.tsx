@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { formatTransportType } from "@/lib/transport";
+import { formatTransportType, normalizeTransportType } from "@/lib/transport";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -13,12 +13,12 @@ import { Footprints, Bike, Bus, Users, Zap, Scooter, BarChart2 } from "lucide-re
 export const Route = createFileRoute("/_authenticated/analytics")({ component: Analytics });
 
 const MODE_COLORS: Record<string, string> = {
-  Walk:          "#10b981",
-  Bike:          "#3b82f6",
-  "Electric Bike": "#8b5cf6",
-  "E-Scooter":   "#f59e0b",
-  Bus:           "#06b6d4",
-  Carpool:       "#ec4899",
+  Walk:          "#5bb88a",
+  Bike:          "#6099db",
+  "Electric Bike": "#9b82db",
+  "E-Scooter":   "#e5aa52",
+  Bus:           "#51b2c4",
+  Carpool:       "#d978a3",
 };
 
 const MODE_ICONS: Record<string, any> = {
@@ -26,8 +26,8 @@ const MODE_ICONS: Record<string, any> = {
   "E-Scooter": Scooter, Bus: Bus, Carpool: Users,
 };
 
-const COMPANY_COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#ec4899"];
-const MOVER_COLORS   = ["#f59e0b", "#06b6d4", "#10b981", "#8b5cf6", "#ec4899"];
+const COMPANY_COLORS = ["#5bb88a", "#6099db", "#9b82db", "#e5aa52", "#d978a3"];
+const MOVER_COLORS   = ["#e5aa52", "#51b2c4", "#5bb88a", "#9b82db", "#d978a3"];
 
 type PlatformStatRow = {
   transport_type: string | null;
@@ -104,28 +104,34 @@ function Analytics() {
       return buildPlatformStatsFromActivities((activities ?? []) as PlatformStatRow[]);
     },
     enabled: !!user,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   // Top 5 companies
   const { data: companies, isLoading: loadingCompanies } = useQuery({
     queryKey: ["analytics-top-companies"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 5, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 10, _offset: 0 });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).filter((c: any) => !c.name?.toLowerCase().includes("saadi"));
     },
     enabled: !!user,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   // Top 5 movers
   const { data: movers, isLoading: loadingMovers } = useQuery({
     queryKey: ["analytics-top-movers"],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_top_users", { _limit: 5, _offset: 0 });
+      const { data, error } = await supabase.rpc("get_top_users", { _limit: 10, _offset: 0 });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).filter((u: any) => !u.name?.toLowerCase().includes("saadi"));
     },
     enabled: !!user,
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const isLoading = loadingStats || loadingCompanies || loadingMovers;
@@ -144,8 +150,10 @@ function Analytics() {
   const modeMap: Record<string, { km: number; count: number }> = {};
   for (const m of ALL_MODES) modeMap[m] = { km: 0, count: 0 };
   for (const row of (stats?.by_mode ?? [])) {
-    if (modeMap[row.transport_type] !== undefined) {
-      modeMap[row.transport_type] = { km: row.total_km, count: row.trip_count };
+    const normalized = normalizeTransportType(row.transport_type);
+    if (modeMap[normalized] !== undefined) {
+      modeMap[normalized].km += Number(row.total_km ?? 0);
+      modeMap[normalized].count += Number(row.trip_count ?? 0);
     }
   }
 

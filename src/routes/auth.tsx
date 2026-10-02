@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Leaf } from "lucide-react";
+import { Leaf, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -22,12 +22,20 @@ function AuthPage() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-secondary to-background px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-background via-secondary to-background px-4 py-8 relative">
+      <div className="absolute top-4 left-4 md:top-6 md:left-6">
+        <Button asChild size="sm" className="gap-2 shadow-sm">
+          <Link to="/">
+            <ArrowLeft className="h-4 w-4" /> Back to Home
+          </Link>
+        </Button>
+      </div>
+
       <div className="w-full max-w-md">
-        <div className="mb-8 flex items-center justify-center">
-          <img src="/logo.webp" alt="SHIFT �land" className="h-20 w-auto" />
-          <span className="font-display text-2xl font-semibold">SHIFT Åland</span>
-        </div>
+        <Link to="/" className="mb-6 flex items-center justify-center group transition-transform hover:scale-102">
+          <img src="/logo.png" alt="SHIFT Åland" className="h-20 w-auto" />
+          <span className="font-display text-2xl font-semibold group-hover:text-primary transition-colors">SHIFT Åland</span>
+        </Link>
         <Card>
           <CardHeader>
             <CardTitle className="font-display">Welcome</CardTitle>

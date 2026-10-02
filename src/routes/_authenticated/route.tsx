@@ -28,7 +28,7 @@ function AuthedLayout() {
         <SidebarInset className="flex flex-1 flex-col">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur">
             <SidebarTrigger />
-            <img src="/logo.webp" alt="SHIFT �land" className="h-10 w-auto" />
+            <img src="/logo.png" alt="SHIFT Åland" className="h-10 w-auto" />
             <span className="font-display text-sm font-medium text-muted-foreground">SHIFT Åland</span>
           </header>
           <main className="flex-1 p-4 md:p-6">

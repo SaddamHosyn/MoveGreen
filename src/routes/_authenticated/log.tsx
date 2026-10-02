@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Footprints, Bike, Bus, Users, Zap, Scooter, MapPin, Loader2, Plus, Trash2, ArrowRight } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Footprints, Bike, Bus, Users, Zap, Scooter, MapPin, Loader2, Plus, Trash2, ArrowRight, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,45 @@ const ICONS: Record<string, any> = {
   "E-Scooter": Scooter,
 };
 
+const CANONICAL_RULES = [
+  { transport_type: "Walk", points_per_km: 20 },
+  { transport_type: "Bike", points_per_km: 18 },
+  { transport_type: "Electric Bike", points_per_km: 16 },
+  { transport_type: "E-Scooter", points_per_km: 13 },
+  { transport_type: "Bus", points_per_km: 12 },
+  { transport_type: "Carpool", points_per_km: 10 },
+];
+
+// Map display names → database transport_type values (DB uses old lowercase format)
+const TO_DB_TYPE: Record<string, string> = {
+  Walk: "walking",
+  Bike: "cycling",
+  "Electric Bike": "electric_bike",
+  "E-Scooter": "e_scooter",
+  Bus: "bus",
+  Carpool: "carpooling",
+};
+
+type NominatimResult = {
+  place_id: number;
+  display_name: string;
+  lat: string;
+  lon: string;
+};
+
+type ResolvedPlace = {
+  display_name: string;
+  lat: number;
+  lon: number;
+};
+
 type Segment = {
   id: string;
   type: string;
-  origin: string;
-  destination: string;
+  originText: string;
+  originPlace: ResolvedPlace | null;
+  destinationText: string;
+  destinationPlace: ResolvedPlace | null;
   distance: number | null;
   calculating: boolean;
 };
@@ -35,13 +69,14 @@ function newSegment(type = "Walk"): Segment {
   return {
     id: Math.random().toString(36).slice(2),
     type,
-    origin: "",
-    destination: "",
+    originText: "",
+    originPlace: null,
+    destinationText: "",
+    destinationPlace: null,
     distance: null,
     calculating: false,
   };
 }
-
 
 function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: number }) {
   const R = 6371;
@@ -56,39 +91,133 @@ function haversineKm(a: { lat: number; lon: number }, b: { lat: number; lon: num
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-async function geocode(query: string): Promise<{ lat: number; lon: number }> {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error("Geocoding service unavailable");
-  const data = await res.json();
-  if (!Array.isArray(data) || data.length === 0) throw new Error(`Address not found: "${query}"`);
-  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+async function searchPlaces(query: string): Promise<NominatimResult[]> {
+  if (!query || query.trim().length < 2) return [];
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&accept-language=en&q=${encodeURIComponent(query)}`;
+  const res = await fetch(url, { headers: { Accept: "application/json", "Accept-Language": "en" } });
+  if (!res.ok) return [];
+  return res.json();
 }
 
+// ── Address Autocomplete Input ─────────────────────────────────────────────
+function AddressInput({
+  label,
+  value,
+  resolvedPlace,
+  onChange,
+  onSelect,
+  iconColor,
+}: {
+  label: string;
+  value: string;
+  resolvedPlace: ResolvedPlace | null;
+  onChange: (text: string) => void;
+  onSelect: (place: ResolvedPlace) => void;
+  iconColor?: string;
+}) {
+  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleChange = (text: string) => {
+    onChange(text);
+    setOpen(true);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (text.trim().length < 2) {
+      setSuggestions([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      const results = await searchPlaces(text);
+      setSuggestions(results);
+      setLoading(false);
+    }, 400);
+  };
+
+  const handleSelect = (result: NominatimResult) => {
+    onSelect({
+      display_name: result.display_name,
+      lat: parseFloat(result.lat),
+      lon: parseFloat(result.lon),
+    });
+    setSuggestions([]);
+    setOpen(false);
+  };
+
+  return (
+    <div className="space-y-1.5" ref={containerRef}>
+      <Label>{label}</Label>
+      <div className="relative">
+        <MapPin
+          className={cn(
+            "pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2",
+            iconColor ?? "text-muted-foreground"
+          )}
+        />
+        <Input
+          className="pl-9 pr-9"
+          placeholder={`Search ${label.toLowerCase()}…`}
+          value={value}
+          onChange={(e) => handleChange(e.target.value)}
+          onFocus={() => value.length >= 2 && setOpen(true)}
+          autoComplete="off"
+        />
+        {loading && (
+          <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+        )}
+        {open && suggestions.length > 0 && (
+          <ul className="absolute z-50 mt-1 w-full rounded-md border border-border bg-background shadow-lg">
+            {suggestions.map((s) => (
+              <li
+                key={s.place_id}
+                className="cursor-pointer truncate px-3 py-2 text-sm hover:bg-secondary"
+                onMouseDown={() => handleSelect(s)}
+              >
+                <span className="font-medium">{s.display_name.split(",")[0]}</span>
+                <span className="ml-1 text-xs text-muted-foreground">
+                  {s.display_name.split(",").slice(1, 3).join(",")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {resolvedPlace && (
+        <p className="truncate text-xs text-primary">
+          ✓ {resolvedPlace.display_name.split(",").slice(0, 3).join(",")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────
 function LogActivity() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [segments, setSegments] = useState<Segment[]>([newSegment()]);
   const [busy, setBusy] = useState(false);
 
-  const {
-    data: rules,
-    error: rulesError,
-    isLoading: rulesLoading,
-  } = useQuery({
+  const { data: rules, isLoading: rulesLoading } = useQuery({
     queryKey: ["scoring-rules"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("scoring_rules")
-        .select("transport_type, points_per_km")
-        .eq("active", true)
-        .order("points_per_km", { ascending: false });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: async () => CANONICAL_RULES,
   });
 
-  const activeRules = rules ?? [];
+  const activeRules = rules ?? CANONICAL_RULES;
 
   const updateSegment = (id: string, patch: Partial<Segment>) =>
     setSegments((s) => s.map((seg) => (seg.id === id ? { ...seg, ...patch } : seg)));
@@ -97,8 +226,10 @@ function LogActivity() {
     setSegments((s) => {
       const last = s[s.length - 1];
       const next = newSegment(last?.type ?? "Walk");
-      // chain: new segment starts where last ended
-      if (last?.destination) next.origin = last.destination;
+      if (last?.destinationText) {
+        next.originText = last.destinationText;
+        next.originPlace = last.destinationPlace;
+      }
       return [...s, next];
     });
   };
@@ -106,18 +237,23 @@ function LogActivity() {
   const removeSegment = (id: string) =>
     setSegments((s) => (s.length === 1 ? s : s.filter((seg) => seg.id !== id)));
 
-  const calculateSegment = async (id: string) => {
+  const calculateSegment = (id: string) => {
     const seg = segments.find((s) => s.id === id);
     if (!seg) return;
-    if (!seg.origin.trim() || !seg.destination.trim()) {
-      return toast.error("Please enter both origin and destination");
-    }
+    if (!seg.originPlace) return toast.error("Please select a valid origin from the suggestions list");
+    if (!seg.destinationPlace) return toast.error("Please select a valid destination from the suggestions list");
+
     updateSegment(id, { calculating: true, distance: null });
     try {
-      const [a, b] = await Promise.all([geocode(seg.origin), geocode(seg.destination)]);
-      const km = haversineKm(a, b);
-      if (km <= 0) throw new Error("Origin and destination are the same");
-      if (km > 500) throw new Error("Segment is too long (max 500 km)");
+      const km = haversineKm(seg.originPlace, seg.destinationPlace);
+      if (km <= 0.01) {
+        updateSegment(id, { calculating: false });
+        return toast.error("Origin and destination appear to be the same location");
+      }
+      if (km > 500) {
+        updateSegment(id, { calculating: false });
+        return toast.error("Distance is too long (max 500 km per segment)");
+      }
       updateSegment(id, { distance: Number(km.toFixed(2)), calculating: false });
       toast.success(`Distance: ${km.toFixed(2)} km`);
     } catch (e: any) {
@@ -149,29 +285,31 @@ function LogActivity() {
     if (segments.length === 1) {
       const only = segments[0];
       const { error } = await supabase.from("activities").insert({
-        transport_type: only.type,
+        transport_type: TO_DB_TYPE[only.type] ?? only.type,
         distance_km: only.distance!,
         user_id: (await supabase.auth.getUser()).data.user!.id,
       });
       setBusy(false);
       if (error) return toast.error(error.message);
       toast.success("Activity logged! Points awarded.");
-      qc.invalidateQueries();
+      await qc.invalidateQueries();
+      qc.resetQueries();
+      await new Promise(r => setTimeout(r, 600));
       navigate({ to: "/dashboard" });
       return;
     }
 
     const payload = segments.map((s) => ({
-      transport_type: s.type,
+      transport_type: TO_DB_TYPE[s.type] ?? s.type,
       distance_km: s.distance,
     }));
-
 
     const { error } = await supabase.rpc("log_multi_modal_trip", { _segments: payload as any });
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success(`Multi-modal trip logged! ${segments.length} segments, +${totalPoints} pts`);
-    qc.invalidateQueries();
+    await qc.invalidateQueries();
+    qc.resetQueries();
     navigate({ to: "/dashboard" });
   };
 
@@ -218,23 +356,11 @@ function LogActivity() {
               <CardContent className="space-y-4">
                 <div>
                   <Label className="mb-2 block">Transport mode</Label>
-                  {rulesLoading && (
+                  {rulesLoading ? (
                     <div className="flex items-center gap-2 rounded-md border p-4 text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading transport modes from Supabase…
+                      <Loader2 className="h-4 w-4 animate-spin" /> Loading…
                     </div>
-                  )}
-                  {rulesError && (
-                    <div className="rounded-md border border-destructive/50 p-4 text-sm text-destructive">
-                      Could not load transport modes from Supabase: {rulesError.message}
-                    </div>
-                  )}
-                  {!rulesLoading && !rulesError && activeRules.length === 0 && (
-                    <div className="rounded-md border border-destructive/50 p-4 text-sm text-destructive">
-                      No active transport scoring rules were found in Supabase.
-                    </div>
-                  )}
-                  {activeRules.length > 0 && (
+                  ) : (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
                       {activeRules.map((r) => {
                         const RIcon = ICONS[r.transport_type] ?? Footprints;
@@ -266,63 +392,74 @@ function LogActivity() {
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <Label>From</Label>
-                    <div className="relative">
-                      <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        className="pl-9"
-                        placeholder="Origin"
-                        value={seg.origin}
-                        onChange={(e) =>
-                          updateSegment(seg.id, { origin: e.target.value, distance: null })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>To</Label>
-                    <div className="relative">
-                      <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
-                      <Input
-                        className="pl-9"
-                        placeholder="Destination"
-                        value={seg.destination}
-                        onChange={(e) =>
-                          updateSegment(seg.id, { destination: e.target.value, distance: null })
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
+                  <AddressInput
+                    label="From"
+                    value={seg.originText}
+                    resolvedPlace={seg.originPlace}
+                    onChange={(text) =>
+                      updateSegment(seg.id, { originText: text, originPlace: null, distance: null })
+                    }
+                    onSelect={(place) =>
+                      updateSegment(seg.id, {
+                        originText: place.display_name.split(",")[0],
+                        originPlace: place,
+                        distance: null,
+                      })
+                    }
+                  />
+                  <AddressInput
+                    label="To"
+                    value={seg.destinationText}
+                    resolvedPlace={seg.destinationPlace}
+                    iconColor="text-primary"
+                    onChange={(text) =>
+                      updateSegment(seg.id, { destinationText: text, destinationPlace: null, distance: null })
+                    }
+                    onSelect={(place) =>
+                      updateSegment(seg.id, {
+                        destinationText: place.display_name.split(",")[0],
+                        destinationPlace: place,
+                        distance: null,
+                      })
+                    }
+                  />
                 </div>
 
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => calculateSegment(seg.id)}
-                  disabled={seg.calculating || !seg.origin || !seg.destination}
+                  disabled={seg.calculating || !seg.originPlace || !seg.destinationPlace}
                   className="w-full"
                 >
                   {seg.calculating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Calculating…
-                    </>
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Calculating…</>
                   ) : (
                     "Calculate distance"
                   )}
                 </Button>
 
-
                 <div className="flex items-center justify-between rounded-md border border-border bg-secondary p-3 text-sm">
                   <span className="text-muted-foreground">
-                    Distance: <span className="font-medium text-foreground">
+                    Distance:{" "}
+                    <span className="font-medium text-foreground">
                       {seg.distance ? `${seg.distance.toFixed(2)} km` : "—"}
                     </span>
                   </span>
                   <span className="font-semibold text-primary">+{segPts} pts</span>
                 </div>
+
+                {seg.originPlace && seg.destinationPlace && (
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&origin=${seg.originPlace.lat},${seg.originPlace.lon}&destination=${seg.destinationPlace.lat},${seg.destinationPlace.lon}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Open route in Google Maps
+                  </a>
+                )}
               </CardContent>
             </Card>
           );
@@ -359,7 +496,7 @@ function LogActivity() {
           ) : "Log activity"}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          Distances are calculated as straight lines between points. Multi-modal trips are saved atomically.
+          Distances are straight-line (as the crow flies). Select locations from the dropdown to ensure accuracy.
         </p>
       </form>
     </div>

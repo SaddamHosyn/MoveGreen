@@ -18,6 +18,8 @@ function Leaderboard() {
       if (error) throw error;
       return data?.[0] ?? null;
     },
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const { data: topUsers } = useQuery({
@@ -25,8 +27,10 @@ function Leaderboard() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_top_users", { _limit: 50, _offset: 0 });
       if (error) throw error;
-      return data;
+      return (data ?? []).filter((u: any) => !u.name?.toLowerCase().includes("saadi"));
     },
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const { data: companies } = useQuery({
@@ -34,8 +38,10 @@ function Leaderboard() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_company_leaderboard", { _limit: 50, _offset: 0 });
       if (error) throw error;
-      return data;
+      return (data ?? []).filter((c: any) => !c.name?.toLowerCase().includes("saadi"));
     },
+    refetchOnMount: "always",
+    staleTime: 0,
   });
 
   const { data: companyUsers } = useQuery({
@@ -72,8 +78,8 @@ function Leaderboard() {
 
         <TabsContent value="global">
           <Board
-            title="Top users worldwide"
-            rows={(topUsers ?? []).map((u: any) => ({
+            title="Top 5 users worldwide"
+            rows={(topUsers ?? []).slice(0, 5).map((u: any) => ({
               rank: u.rank, name: u.name, sub: u.company_name ?? "Independent", points: u.total_points,
               highlight: u.user_id === user?.id,
             }))}
@@ -82,8 +88,8 @@ function Leaderboard() {
 
         <TabsContent value="companies">
           <Board
-            title="Top companies by total points"
-            rows={rankedCompanies.map((c: any) => ({
+            title="Top 5 companies by total points"
+            rows={rankedCompanies.slice(0, 5).map((c: any) => ({
               rank: c.rank,
               name: c.name,
               sub: `${c.active_member_count}/${c.member_count} active · ${c.total_points} total pts`,
@@ -95,8 +101,8 @@ function Leaderboard() {
 
         <TabsContent value="company">
           <Board
-            title={rank?.company_name ?? "My company"}
-            rows={(companyUsers ?? []).map((u: any) => ({
+            title={`${rank?.company_name ?? "My company"} (Top 5)`}
+            rows={(companyUsers ?? []).slice(0, 5).map((u: any) => ({
               rank: u.rank, name: u.name, sub: "", points: u.total_points,
               highlight: u.user_id === user?.id,
             }))}
